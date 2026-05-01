@@ -1,0 +1,91 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Platform Dashboard</div>
+      <div class="page-subtitle">SmartFlow Health — platform-wide overview</div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="grid-stats">
+      @for (i of [1,2,3,4,5,6]; track $index) {
+        <div class="skeleton-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <div class="skeleton skeleton-circle" style="width:42px;height:42px;"></div>
+          </div>
+          <div class="skeleton" style="width:56px;height:34px;margin-bottom:10px;"></div>
+          <div class="skeleton" style="width:90px;height:13px;"></div>
+        </div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div>
+  } @else {
+    <!-- Stats Grid -->
+    <div class="grid-stats">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon purple"><i class="bi bi-hospital"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalHospitals }}</div>
+        <div class="stat-label">Total Hospitals</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon blue"><i class="bi bi-people"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalUsers }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon green"><i class="bi bi-shield-check"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalAdmins }}</div>
+        <div class="stat-label">Total Admins</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon amber"><i class="bi bi-activity"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalDoctors }}</div>
+        <div class="stat-label">Total Doctors</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon info"><i class="bi bi-headset"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalReceptionists }}</div>
+        <div class="stat-label">Receptionists</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon red"><i class="bi bi-person-heart"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.totalPatients }}</div>
+        <div class="stat-label">Total Patients</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card">
+      <div class="table-title" style="margin-bottom:16px;">Quick Actions</div>
+      <div class="quick-actions">
+        <a routerLink="/superadmin/hospitals" class="btn-primary-custom">
+          <i class="bi bi-hospital"></i> Create Hospital
+        </a>
+        <a routerLink="/superadmin/users" class="btn-info-custom">
+          <i class="bi bi-people"></i> Manage Users
+        </a>
+        <a routerLink="/superadmin/hospitals" class="btn-success-custom">
+          <i class="bi bi-clipboard2-check"></i> View All Hospitals
+        </a>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,161 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">
+        Appointments Log
+        @if (departmentName) {
+          <span class="dept-pill" style="margin-left:10px;font-size:14px;">
+            <i class="bi {{ deptIcon(departmentName) }}" style="margin-right:4px;"></i>{{ departmentName }}
+          </span>
+        }
+      </div>
+      <div class="page-subtitle">Browse appointments by date</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <input
+        type="date"
+        class="form-control-custom"
+        style="width:auto;"
+        [(ngModel)]="selectedDate"
+        (ngModelChange)="onDateChange()"
+      />
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div>
+  }
+
+  @if (!error) {
+    <!-- Summary Stats -->
+    <div class="grid-stats" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-card-header"><div class="stat-icon purple"><i class="bi bi-list-ol"></i></div></div>
+        <div class="stat-value">{{ tokens.length }}</div>
+        <div class="stat-label">Total Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div></div>
+        <div class="stat-value">{{ waitingCount }}</div>
+        <div class="stat-label">Waiting</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><div class="stat-icon info"><i class="bi bi-activity"></i></div></div>
+        <div class="stat-value">{{ inProgressCount }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div></div>
+        <div class="stat-value">{{ completedCount }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><div class="stat-icon red"><i class="bi bi-slash-circle"></i></div></div>
+        <div class="stat-value">{{ cancelledCount }}</div>
+        <div class="stat-label">Cancelled</div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="status-filter-tabs" style="margin-bottom:20px;">
+      <button class="status-tab" [class.status-tab-active]="statusFilter === ''" (click)="statusFilter = ''">
+        All <span class="status-tab-count">{{ tokens.length }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'WAITING'" (click)="statusFilter = 'WAITING'">
+        <span class="status-tab-dot" style="background:var(--warning);"></span>
+        Waiting <span class="status-tab-count">{{ waitingCount }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'IN_PROGRESS'" (click)="statusFilter = 'IN_PROGRESS'">
+        <span class="status-tab-dot" style="background:var(--info);"></span>
+        In Progress <span class="status-tab-count">{{ inProgressCount }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'COMPLETED'" (click)="statusFilter = 'COMPLETED'">
+        <span class="status-tab-dot" style="background:var(--success);"></span>
+        Completed <span class="status-tab-count">{{ completedCount }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'CANCELLED'" (click)="statusFilter = 'CANCELLED'">
+        <span class="status-tab-dot" style="background:var(--danger);"></span>
+        Cancelled <span class="status-tab-count">{{ cancelledCount }}</span>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      @if (loading) {
+        @for (i of [1,2,3,4,5]; track $index) {
+          <div class="skeleton-row-wrap">
+            <div style="flex:0 0 60px;"><div class="skeleton" style="height:28px;width:52px;border-radius:8px;"></div></div>
+            <div style="flex:2;">
+              <div class="skeleton" style="height:14px;width:55%;margin-bottom:6px;"></div>
+              <div class="skeleton" style="height:12px;width:40%;"></div>
+            </div>
+            <div style="flex:1;"><div class="skeleton" style="height:22px;width:80px;border-radius:99px;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:22px;width:80px;border-radius:99px;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:13px;width:50px;"></div></div>
+          </div>
+        }
+      } @else {
+        <div class="table-overflow">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredTokens.length === 0) {
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <div class="empty-state-icon"><i class="bi bi-clipboard-x"></i></div>
+                      <div class="empty-state-title">No appointments found</div>
+                      <div class="empty-state-sub">No records match the selected filter</div>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @for (token of filteredTokens; track token.id) {
+                <tr>
+                  <td>
+                    <div class="table-token-number">#{{ token.tokenNumber }}</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:600;">{{ token.patientName || '—' }}</div>
+                    @if (token.walkIn) {
+                      <div style="font-size:11px;color:var(--text-muted);">Walk-in</div>
+                    }
+                  </td>
+                  <td style="font-size:13px;">{{ token.doctorName }}</td>
+                  <td>
+                    @if (token.walkIn) {
+                      <span class="badge-walkin"><i class="bi bi-person-walking"></i> Walk-in</span>
+                    } @else {
+                      <span style="font-size:12px;color:var(--text-muted);">Appointment</span>
+                    }
+                  </td>
+                  <td>
+                    @if (token.priority) {
+                      <span class="badge-emergency"><i class="bi bi-exclamation-triangle-fill"></i> Emergency</span>
+                    } @else {
+                      <span style="font-size:12px;color:var(--text-muted);">Normal</span>
+                    }
+                  </td>
+                  <td>
+                    <span [class]="getStatusClass(token.status)">{{ getStatusLabel(token.status) }}</span>
+                  </td>
+                  <td style="font-size:12px;color:var(--text-muted);">{{ formatSlotTime(token) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

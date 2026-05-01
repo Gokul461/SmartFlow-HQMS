@@ -1,0 +1,204 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Users</div>
+      <div class="page-subtitle">Manage all users across the platform</div>
+    </div>
+  </div>
+
+  <!-- Role Count Cards — click to filter -->
+  <div class="grid-stats" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:24px;">
+
+    <div class="stat-card {{ filterRole === '' ? 'stat-card-active' : '' }}"
+         style="cursor:pointer;"
+         (click)="setFilter('')">
+      <div class="stat-card-header"><div class="stat-icon purple"><i class="bi bi-people"></i></div></div>
+      <div class="stat-value">{{ getTotalCount() }}</div>
+      <div class="stat-label">All Users</div>
+      @if (filterRole === '') {
+        <div class="active-filter-dot"></div>
+      }
+    </div>
+
+    <div class="stat-card {{ filterRole === 'ADMIN' ? 'stat-card-active' : '' }}"
+         style="cursor:pointer;"
+         (click)="setFilter('ADMIN')">
+      <div class="stat-card-header"><div class="stat-icon blue"><i class="bi bi-shield-check"></i></div></div>
+      <div class="stat-value">{{ getRoleCount('ADMIN') }}</div>
+      <div class="stat-label">Admins</div>
+      @if (filterRole === 'ADMIN') {
+        <div class="active-filter-dot"></div>
+      }
+    </div>
+
+    <div class="stat-card {{ filterRole === 'DOCTOR' ? 'stat-card-active' : '' }}"
+         style="cursor:pointer;"
+         (click)="setFilter('DOCTOR')">
+      <div class="stat-card-header"><div class="stat-icon green"><i class="bi bi-activity"></i></div></div>
+      <div class="stat-value">{{ getRoleCount('DOCTOR') }}</div>
+      <div class="stat-label">Doctors</div>
+      @if (filterRole === 'DOCTOR') {
+        <div class="active-filter-dot"></div>
+      }
+    </div>
+
+    <div class="stat-card {{ filterRole === 'RECEPTIONIST' ? 'stat-card-active' : '' }}"
+         style="cursor:pointer;"
+         (click)="setFilter('RECEPTIONIST')">
+      <div class="stat-card-header"><div class="stat-icon amber"><i class="bi bi-headset"></i></div></div>
+      <div class="stat-value">{{ getRoleCount('RECEPTIONIST') }}</div>
+      <div class="stat-label">Receptionists</div>
+      @if (filterRole === 'RECEPTIONIST') {
+        <div class="active-filter-dot"></div>
+      }
+    </div>
+
+    <div class="stat-card {{ filterRole === 'PATIENT' ? 'stat-card-active' : '' }}"
+         style="cursor:pointer;"
+         (click)="setFilter('PATIENT')">
+      <div class="stat-card-header"><div class="stat-icon red"><i class="bi bi-person-heart"></i></div></div>
+      <div class="stat-value">{{ getRoleCount('PATIENT') }}</div>
+      <div class="stat-label">Patients</div>
+      @if (filterRole === 'PATIENT') {
+        <div class="active-filter-dot"></div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <div class="table-header">
+      <div class="table-title">
+        @if (filterRole) {
+          {{ filterRole | titlecase }}s
+        } @else {
+          All Users
+        }
+        <span style="font-size:13px;font-weight:500;color:var(--text-muted);margin-left:8px;">({{ users.length }})</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div class="search-bar-wrapper" style="max-width:260px;">
+          <span class="search-bar-icon"><i class="bi bi-search"></i></span>
+          <input
+            type="text"
+            class="search-bar-input"
+            [(ngModel)]="searchTerm"
+            placeholder="Search by name or email..."
+            (input)="onSearchInput()"
+          />
+        </div>
+        @if (searchTerm) {
+          <button class="btn-ghost-custom btn-sm" (click)="clearSearch()"><i class="bi bi-x-lg"></i> Clear</button>
+        }
+      </div>
+    </div>
+
+    @if (loading) {
+      @for (i of [1,2,3,4,5,6]; track $index) {
+        <div class="skeleton-row-wrap">
+          <div class="skeleton skeleton-circle" style="width:32px;height:32px;"></div>
+          <div style="flex:2;"><div class="skeleton" style="height:14px;width:55%;"></div></div>
+          <div style="flex:3;"><div class="skeleton" style="height:13px;width:70%;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:22px;width:70px;border-radius:99px;"></div></div>
+          <div style="flex:2;"><div class="skeleton" style="height:13px;width:60%;"></div></div>
+          <div style="flex:2;"><div class="skeleton" style="height:13px;width:50%;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:22px;width:56px;border-radius:99px;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:30px;width:90px;border-radius:6px;"></div></div>
+        </div>
+      }
+    } @else if (error) {
+      <div style="padding:24px;"><div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div></div>
+    } @else {
+      <div class="table-overflow">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Hospital</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (users.length === 0) {
+              <tr>
+                <td colspan="8">
+                  <div class="empty-state">
+                    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                    <div class="empty-state-title">No users found</div>
+                    <div class="empty-state-sub">
+                      @if (searchTerm || filterRole) {
+                        Try adjusting your search or filter
+                      } @else {
+                        No users have been created yet
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+            @for (u of users; track u.id; let i = $index) {
+              <tr>
+                <td style="color:var(--text-muted);font-size:12px;">{{ i + 1 }}</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;">
+                      {{ u.name.charAt(0).toUpperCase() }}
+                    </div>
+                    <strong>{{ u.name }}</strong>
+                  </div>
+                </td>
+                <td style="color:var(--text-muted);font-size:13px;">{{ u.email }}</td>
+                <td><span class="badge-role">{{ u.role }}</span></td>
+                <td style="font-size:13px;">{{ u.hospitalName || '—' }}</td>
+                <td style="font-size:13px;">{{ u.departmentName || '—' }}</td>
+                <td>
+                  @if (u.isActive) {
+                    <span class="badge-status badge-active">Active</span>
+                  } @else {
+                    <span class="badge-status badge-inactive">Inactive</span>
+                  }
+                </td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    @if (u.isActive) {
+                      <button class="btn-amber-custom btn-sm" (click)="deactivate(u.id)">Deactivate</button>
+                    } @else {
+                      <button class="btn-success-custom btn-sm" (click)="activate(u.id)">Activate</button>
+                    }
+                    <button class="btn-ghost-custom btn-sm" (click)="confirmDelete(u)">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+@if (showConfirm) {
+  <div class="modal-overlay" >
+    <div class="modal-card modal-card-sm">
+      <div class="modal-header">
+        <div class="modal-title"><i class="bi bi-exclamation-triangle"></i> Delete User</div>
+        <button class="modal-close" (click)="cancelDelete()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:8px;">
+        Delete user <strong style="color:var(--text)">{{ confirmName }}</strong>?
+      </p>
+      <p style="color:var(--danger);font-size:13px;">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost-custom" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger-custom" (click)="deleteUser()">Delete User</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,47 @@
+<aside class="sidebar" [class.collapsed]="layoutService.collapsed()" [class.mobile-open]="layoutService.mobileOpen()">
+
+  <!-- Header / Brand -->
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon ms-2"><i class="bi bi-heart-pulse-fill"></i></div>
+      <div class="brand-text" [class.hidden]="layoutService.collapsed()">
+        <span class="brand-name">SmartFlow</span>
+        <span class="brand-sub">Hospital QMS</span>
+      </div>
+    </div>
+    <button class="sidebar-collapse-btn" (click)="layoutService.toggleCollapse()" title="Toggle sidebar">
+      <i class="bi w-100" [ngClass]="layoutService.collapsed() ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+    </button>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.path) {
+      <a
+        class="nav-item"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [attr.title]="layoutService.collapsed() ? item.label : null"
+        (click)="layoutService.closeMobile()"
+      >
+        <i class="bi {{ item.icon }} nav-item-icon"></i>
+        <span class="nav-item-label" [class.hidden]="layoutService.collapsed()">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="sidebar-user" [class.collapsed]="layoutService.collapsed()">
+      <div class="user-avatar-sidebar">{{ getInitials(name) }}</div>
+      <div class="user-info-sidebar" [class.hidden]="layoutService.collapsed()">
+        <span class="user-name-sidebar">{{ name }}</span>
+        <span class="user-role-sidebar">{{ getRoleLabel(role) }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span [class.hidden]="layoutService.collapsed()">Logout</span>
+    </button>
+  </div>
+</aside>

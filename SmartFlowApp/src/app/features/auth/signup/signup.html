@@ -1,0 +1,104 @@
+<div class="auth-scene">
+  <div class="auth-bg-orb auth-bg-orb-1"></div>
+  <div class="auth-bg-orb auth-bg-orb-2"></div>
+  <div class="auth-bg-orb auth-bg-orb-3"></div>
+  <div class="auth-grid-overlay"></div>
+
+  <div class="auth-center-wrap" style="max-width:460px;gap:14px;padding:20px 0;">
+
+    <!-- Brand -->
+    <div class="auth-brand-header">
+      <div class="auth-brand-logo" style="width:42px;height:42px;font-size:20px;border-radius:13px;">
+        <i class="bi bi-heart-pulse-fill"></i>
+      </div>
+      <div class="auth-brand-wordmark" style="font-size:22px;">SmartFlow <span class="health-text">Health</span></div>
+    </div>
+
+    <!-- Glass card -->
+    <div class="auth-glass-card" style="padding:24px 28px 22px;">
+      <div class="auth-form-title" style="font-size:19px;">Create account</div>
+      <div class="auth-form-sub" style="margin-bottom:18px;">Join SmartFlow as a patient today</div>
+
+      @if (errorMessage) {
+        <div class="alert-error" style="padding:9px 12px;font-size:13px;margin-bottom:14px;">
+          <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+        </div>
+      }
+      @if (successMessage) {
+        <div class="alert-success" style="background:rgba(5,150,105,0.15);border-color:rgba(5,150,105,0.3);color:#6EE7B7;padding:9px 12px;font-size:13px;margin-bottom:14px;">
+          <i class="bi bi-check-circle"></i> {{ successMessage }}
+        </div>
+      }
+
+      <form (ngSubmit)="submit()">
+
+        <!-- Name + Phone in one row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" style="font-size:12px;">Full Name</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon"><i class="bi bi-person"></i></span>
+              <input type="text" class="form-control-custom input-with-icon"
+                [(ngModel)]="name" name="name" placeholder="John Doe" autocomplete="name"
+                style="padding-top:7px;padding-bottom:7px;font-size:13px;" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" style="font-size:12px;">Phone</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon"><i class="bi bi-telephone"></i></span>
+              <input type="tel" class="form-control-custom input-with-icon"
+                [(ngModel)]="phone" name="phone" placeholder="+91 98765 43210" autocomplete="tel"
+                style="padding-top:7px;padding-bottom:7px;font-size:13px;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" style="font-size:12px;">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon"><i class="bi bi-envelope"></i></span>
+            <input type="email" class="form-control-custom input-with-icon"
+              [(ngModel)]="email" name="email" placeholder="john@example.com" autocomplete="email"
+              style="padding-top:7px;padding-bottom:7px;font-size:13px;" />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label" style="font-size:12px;">Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control-custom input-with-icon"
+              [(ngModel)]="password" name="password" placeholder="••••••••" autocomplete="new-password"
+              style="padding-top:7px;padding-bottom:7px;font-size:13px;" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary-custom"
+          style="width:100%;justify-content:center;padding:11px 20px;font-size:14px;"
+          [disabled]="loading">
+          @if (loading) {
+            <span class="spinner" style="width:16px;height:16px;border-width:2px;"></span>
+            Creating account...
+          } @else {
+            Create Account &nbsp;<i class="bi bi-arrow-right"></i>
+          }
+        </button>
+      </form>
+
+      <div class="auth-form-footer" style="margin-top:14px;">
+        Already have an account? <a routerLink="/login">Sign in</a>
+      </div>
+    </div>
+
+    <!-- Trust chips -->
+    <div class="auth-trust-row">
+      <div class="auth-trust-chip"><i class="bi bi-person-check-fill"></i> Free to join</div>
+      <div class="auth-trust-chip"><i class="bi bi-shield-lock-fill"></i> Data protected</div>
+      <div class="auth-trust-chip"><i class="bi bi-calendar2-check-fill"></i> Easy booking</div>
+    </div>
+
+  </div>
+</div>

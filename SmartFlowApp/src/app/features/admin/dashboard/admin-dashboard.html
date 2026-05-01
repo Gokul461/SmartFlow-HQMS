@@ -1,0 +1,82 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-subtitle">Hospital operations at a glance</div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="dash-bento">
+      @for (i of [1,2,3,4,5]; track $index) {
+        <div class="skeleton-card" style="height:140px;border-radius:20px;border:none;"></div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div>
+  } @else {
+
+    <!-- Bento grid -->
+    <div class="dash-bento">
+
+      <!-- Hero: total staff -->
+      <div class="dash-bento-hero">
+        <div class="dash-hero-eyebrow"><i class="bi bi-building-fill"></i>&nbsp; Hospital Team</div>
+        <div class="dash-hero-number">{{ getCount('ADMIN') + getCount('DOCTOR') + getCount('RECEPTIONIST') }}</div>
+        <div class="dash-hero-label">Total staff members</div>
+        <div class="dash-hero-bg-icon"><i class="bi bi-people-fill"></i></div>
+      </div>
+
+      <!-- Patients -->
+      <a routerLink="/admin/patients" class="dash-bento-card dash-card-teal" style="text-decoration:none;">
+        <div class="dash-card-arrow"><i class="bi bi-arrow-up-right"></i></div>
+        <div class="dash-card-icon"><i class="bi bi-person-heart"></i></div>
+        <div class="dash-card-number">{{ patientCount }}</div>
+        <div class="dash-card-label">Patients</div>
+        <div class="dash-card-sub">via appointments</div>
+        <div class="dash-card-bg-icon"><i class="bi bi-person-heart"></i></div>
+      </a>
+
+      <!-- Doctors -->
+      <a routerLink="/admin/staff" [queryParams]="{role:'DOCTOR'}" class="dash-bento-card dash-card-indigo" style="text-decoration:none;">
+        <div class="dash-card-arrow"><i class="bi bi-arrow-up-right"></i></div>
+        <div class="dash-card-icon"><i class="bi bi-activity"></i></div>
+        <div class="dash-card-number">{{ getCount('DOCTOR') }}</div>
+        <div class="dash-card-label">Doctors</div>
+        <div class="dash-card-bg-icon"><i class="bi bi-activity"></i></div>
+      </a>
+
+      <!-- Receptionists -->
+      <a routerLink="/admin/staff" [queryParams]="{role:'RECEPTIONIST'}" class="dash-bento-card dash-card-violet" style="text-decoration:none;">
+        <div class="dash-card-arrow"><i class="bi bi-arrow-up-right"></i></div>
+        <div class="dash-card-icon"><i class="bi bi-headset"></i></div>
+        <div class="dash-card-number">{{ getCount('RECEPTIONIST') }}</div>
+        <div class="dash-card-label">Receptionists</div>
+        <div class="dash-card-bg-icon"><i class="bi bi-headset"></i></div>
+      </a>
+
+      <!-- Admins -->
+      <a routerLink="/admin/staff" [queryParams]="{role:'ADMIN'}" class="dash-bento-card dash-card-amber" style="text-decoration:none;">
+        <div class="dash-card-arrow"><i class="bi bi-arrow-up-right"></i></div>
+        <div class="dash-card-icon"><i class="bi bi-shield-check"></i></div>
+        <div class="dash-card-number">{{ getCount('ADMIN') }}</div>
+        <div class="dash-card-label">Admins</div>
+        <div class="dash-card-bg-icon"><i class="bi bi-shield-check"></i></div>
+      </a>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card" style="margin-top:20px;">
+      <div class="table-title" style="margin-bottom:16px;">Quick Actions</div>
+      <div class="quick-actions">
+        <a routerLink="/admin/staff"       class="btn-primary-custom"><i class="bi bi-person-plus"></i> Add Staff Member</a>
+        <a routerLink="/admin/departments" class="btn-success-custom"><i class="bi bi-folder-plus"></i> Add Department</a>
+        <a routerLink="/admin/staff"       class="btn-info-custom">   <i class="bi bi-person-badge"></i> View All Staff</a>
+        <a routerLink="/admin/departments" class="btn-amber-custom">  <i class="bi bi-building"></i> View Departments</a>
+        <a routerLink="/admin/patients"    class="btn-outline-custom"><i class="bi bi-people"></i> View Patients</a>
+      </div>
+    </div>
+
+  }
+</div>

@@ -1,0 +1,261 @@
+<div class="fade-in">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">
+          Queue Dashboard
+          @if (departmentName) {
+            <span class="dept-pill" style="margin-left:10px;font-size:14px;">
+              <i class="bi {{ deptIcon(departmentName) }}" style="margin-right:4px;"></i>{{ departmentName }}
+            </span>
+          }
+        </div>
+        <div class="page-subtitle">Today's patient queue — real-time management</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-icon" (click)="loadQueue()" title="Refresh">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button class="btn-primary-custom" (click)="openWalkInModal()">
+          <i class="bi bi-plus-lg"></i> Add Walk-in
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="queue-stats-bar">
+      <div class="queue-stat-pill">
+        <div class="queue-stat-dot" style="background:var(--warning);"></div>
+        <div class="queue-stat-number">{{ waitingCount }}</div>
+        <div class="queue-stat-label">Waiting</div>
+      </div>
+      <div class="queue-stat-pill">
+        <div class="queue-stat-dot" style="background:var(--info);"></div>
+        <div class="queue-stat-number">{{ inProgressCount }}</div>
+        <div class="queue-stat-label">In Progress</div>
+      </div>
+      <div class="queue-stat-pill">
+        <div class="queue-stat-dot" style="background:var(--success);"></div>
+        <div class="queue-stat-number">{{ completedCount }}</div>
+        <div class="queue-stat-label">Completed</div>
+      </div>
+      <div class="queue-stat-pill">
+        <div class="queue-stat-dot" style="background:var(--danger);"></div>
+        <div class="queue-stat-number">{{ cancelledCount }}</div>
+        <div class="queue-stat-label">Cancelled</div>
+      </div>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="status-filter-tabs">
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'ACTIVE'" (click)="statusFilter = 'ACTIVE'">
+        <span class="status-tab-dot" style="background:var(--primary);"></span>
+        Active <span class="status-tab-count">{{ filteredTokensCount('ACTIVE') }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'WAITING'" (click)="statusFilter = 'WAITING'">
+        <span class="status-tab-dot" style="background:var(--warning);"></span>
+        Waiting <span class="status-tab-count">{{ waitingCount }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'IN_PROGRESS'" (click)="statusFilter = 'IN_PROGRESS'">
+        <span class="status-tab-dot" style="background:var(--info);"></span>
+        In Progress <span class="status-tab-count">{{ inProgressCount }}</span>
+      </button>
+      <button class="status-tab" [class.status-tab-active]="statusFilter === 'COMPLETED'" (click)="statusFilter = 'COMPLETED'">
+        <span class="status-tab-dot" style="background:var(--success);"></span>
+        Completed <span class="status-tab-count">{{ completedCount }}</span>
+      </button>
+    </div>
+
+    @if (loading) {
+      <div class="table-wrapper">
+        @for (i of [1,2,3,4,5]; track $index) {
+          <div class="skeleton-row-wrap">
+            <div style="flex:0 0 60px;"><div class="skeleton" style="height:28px;width:52px;border-radius:8px;"></div></div>
+            <div style="flex:2;"><div class="skeleton" style="height:14px;width:55%;"></div></div>
+            <div style="flex:2;"><div class="skeleton" style="height:14px;width:60%;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:22px;width:70px;border-radius:99px;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:22px;width:80px;border-radius:99px;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:22px;width:80px;border-radius:99px;"></div></div>
+            <div style="flex:0 0 48px;"><div class="skeleton" style="height:13px;width:40px;"></div></div>
+            <div style="flex:1;"><div class="skeleton" style="height:30px;width:120px;border-radius:6px;"></div></div>
+          </div>
+        }
+      </div>
+    } @else if (error) {
+      <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div>
+    } @else {
+      <div class="table-wrapper">
+        <div class="table-overflow">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Token</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Queued</th>
+                <th>Est. Wait</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredTokens.length === 0) {
+                <tr>
+                  <td colspan="10">
+                    <div class="empty-state">
+                      <div class="empty-state-icon"><i class="bi bi-list-check"></i></div>
+                      <div class="empty-state-title">
+                        @if (statusFilter === 'ACTIVE')    { No active patients }
+                        @else if (statusFilter === 'WAITING')     { No patients waiting }
+                        @else if (statusFilter === 'IN_PROGRESS') { No patients in progress }
+                        @else if (statusFilter === 'COMPLETED')   { No completed visits yet }
+                        @else { Queue is empty today }
+                      </div>
+                      <div class="empty-state-sub">Add walk-in patients or wait for appointments to arrive</div>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @for (token of filteredTokens; track token.id; let i = $index) {
+                <tr>
+                  <!-- S.No -->
+                  <td style="font-size:12px;color:var(--text-muted);font-weight:600;">{{ i + 1 }}</td>
+                  <!-- Token # -->
+                  <td><div class="table-token-number">#{{ token.tokenNumber }}</div></td>
+
+                  <!-- Patient -->
+                  <td>
+                    <div style="font-weight:600;">{{ token.patientName || 'Anonymous' }}</div>
+                  </td>
+
+                  <!-- Doctor -->
+                  <td><div style="font-size:13px;">{{ token.doctorName }}</div></td>
+
+                  <!-- Type -->
+                  <td>
+                    @if (token.walkIn) {
+                      <span class="badge-walkin"><i class="bi bi-person-walking"></i> Walk-in</span>
+                    } @else {
+                      <span style="font-size:12px;color:var(--info);font-weight:600;"><i class="bi bi-calendar-check"></i> Appt.</span>
+                    }
+                  </td>
+
+                  <!-- Priority -->
+                  <td>
+                    @if (token.priority) {
+                      <span class="badge-emergency"><i class="bi bi-exclamation-triangle-fill"></i> Emergency</span>
+                    } @else {
+                      <span style="font-size:12px;color:var(--text-muted);">Normal</span>
+                    }
+                  </td>
+
+                  <!-- Status -->
+                  <td><span [class]="getStatusClass(token.status)">{{ getStatusLabel(token.status) }}</span></td>
+
+                  <!-- Time -->
+                  <td style="font-size:12px;color:var(--text-muted);">{{ formatSlotTime(token) }}</td>
+
+                  <!-- Est. Wait -->
+                  <td style="font-size:12px;font-weight:600;"
+                      [style.color]="token.status === 'WAITING' ? 'var(--info)' : 'var(--text-muted)'">
+                    {{ getEstimatedTime(token) }}
+                  </td>
+
+                  <!-- Actions -->
+                  <td>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+                      @if (actionLoadingId === token.id) {
+                        <span class="spinner" style="width:18px;height:18px;border-width:2px;"></span>
+
+                      } @else if (token.status === 'WAITING') {
+                        <button class="btn-info-custom btn-sm" (click)="startProgress(token)" title="Start consultation">
+                          <i class="bi bi-play-fill"></i> Start
+                        </button>
+                        <button
+                          class="btn-sm"
+                          [class]="token.priority ? 'btn-amber-custom' : 'btn-ghost-custom'"
+                          (click)="togglePriority(token)"
+                          [title]="token.priority ? 'Remove emergency' : 'Mark as emergency'"
+                        >
+                          <i class="bi bi-exclamation-triangle-fill"></i>
+                        </button>
+                        <button class="btn-ghost-custom btn-sm" (click)="cancel(token)" title="Cancel">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+
+                      } @else if (token.status === 'IN_PROGRESS') {
+                        <button class="btn-success-custom btn-sm" (click)="complete(token)" title="Mark completed">
+                          <i class="bi bi-check-circle"></i> Complete
+                        </button>
+                        <button class="btn-ghost-custom btn-sm" (click)="cancel(token)" title="Cancel">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+
+                      } @else if (token.status === 'COMPLETED') {
+                        <span style="font-size:12px;color:var(--success);font-weight:600;">
+                          <i class="bi bi-check-circle-fill"></i> Done
+                        </span>
+
+                      } @else if (token.status === 'CANCELLED') {
+                        <span style="font-size:12px;color:var(--text-muted);">
+                          <i class="bi bi-slash-circle"></i> Cancelled
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+</div>
+
+<!-- ── Walk-in Modal ─────────────────────────────────────────────────────── -->
+@if (showWalkInModal) {
+  <div class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><i class="bi bi-person-walking"></i> Add Walk-in Patient</div>
+        <button class="modal-close" (click)="closeWalkInModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      @if (walkInError) {
+        <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ walkInError }}</div>
+      }
+
+      <div class="form-group">
+        <label class="form-label">Doctor *</label>
+        <select class="form-select-custom" style="width:100%;" [(ngModel)]="selectedDoctorId">
+          <option [value]="0">Select Doctor</option>
+          @for (doc of doctors; track doc.id) {
+            <option [value]="doc.id" [disabled]="!doc.isActive">
+              {{ doc.name }}{{ !doc.isActive ? ' (Inactive)' : '' }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Patient Name <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <input type="text" class="form-control-custom" [(ngModel)]="walkInPatientName" placeholder="Patient's name or leave blank" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost-custom" (click)="closeWalkInModal()">Cancel</button>
+        <button class="btn-primary-custom" (click)="createWalkIn()" [disabled]="walkInLoading">
+          @if (walkInLoading) {
+            <span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Adding...
+          } @else {
+            <i class="bi bi-plus-circle"></i> Add to Queue
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

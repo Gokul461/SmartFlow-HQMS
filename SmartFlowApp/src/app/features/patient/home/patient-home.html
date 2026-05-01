@@ -1,0 +1,95 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Find Hospitals</div>
+      <div class="page-subtitle">Search for hospitals near you and book appointments</div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="section-card" style="margin-bottom:28px;">
+    <div style="flex:1;min-width:200px;">
+      <label class="form-label">Search by City</label>
+      <div class="search-bar-wrapper" style="max-width:100%;">
+        <span class="search-bar-icon"><i class="bi bi-geo-alt"></i></span>
+        <input
+          type="text"
+          class="search-bar-input"
+          [(ngModel)]="citySearch"
+          (ngModelChange)="onCitySearch()"
+          placeholder="e.g. Mumbai, Delhi, Bangalore..."
+          autocomplete="off"
+        />
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+      @for (i of [1,2,3]; track $index) {
+        <div class="skeleton-card" style="padding:0;overflow:hidden;">
+          <div class="skeleton" style="height:76px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;"></div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+            <div class="skeleton" style="width:68%;height:20px;"></div>
+            <div class="skeleton" style="width:44%;height:13px;"></div>
+            <div class="skeleton" style="width:55%;height:13px;"></div>
+            <div class="skeleton" style="width:45%;height:13px;"></div>
+            <div class="skeleton" style="width:100%;height:38px;border-radius:8px;margin-top:6px;"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div>
+  } @else if (filteredHospitals.length === 0) {
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-hospital"></i></div>
+      <div class="empty-state-title">No hospitals found</div>
+      <div class="empty-state-sub">Try searching with a different city name</div>
+    </div>
+  } @else {
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+      @for (hospital of filteredHospitals; track hospital.id) {
+        <div class="hospital-card">
+          <div class="hospital-card-top"></div>
+          <div class="hospital-card-body">
+            <div class="hospital-card-name">{{ hospital.name }}</div>
+            <div class="hospital-card-meta">
+              <i class="bi bi-geo-alt"></i> {{ hospital.city }}
+            </div>
+            @if (hospital.address) {
+              <div class="hospital-card-meta">
+                <i class="bi bi-house"></i> {{ hospital.address }}
+              </div>
+            }
+            @if (hospital.phone) {
+              <div class="hospital-card-meta">
+                <i class="bi bi-telephone"></i> {{ hospital.phone }}
+              </div>
+            }
+            <div style="margin-top:6px;margin-bottom:16px;">
+              @if (hospital.status === 'ACTIVE') {
+                <span class="badge-active">Active</span>
+              } @else {
+                <span class="badge-inactive">Inactive</span>
+              }
+            </div>
+            @if (hospital.status === 'ACTIVE') {
+              <a
+                [routerLink]="['/patient/hospitals', hospital.id, 'departments']"
+                class="btn-primary-custom"
+                style="width:100%;justify-content:center;"
+              >
+                View Departments <i class="bi bi-arrow-right"></i>
+              </a>
+            } @else {
+              <button class="btn-primary-custom" style="width:100%;justify-content:center;opacity:0.5;" disabled>
+                Currently Inactive
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

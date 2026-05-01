@@ -1,0 +1,207 @@
+<div class="fade-in">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Staff Management</div>
+      <div class="page-subtitle">Manage your hospital's staff members</div>
+    </div>
+    <button class="btn-primary-custom" (click)="openModal()"><i class="bi bi-plus-lg"></i> Add Staff</button>
+  </div>
+
+  <!-- Role Count Cards -->
+  <div class="grid-stats" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+    <div class="stat-card" style="cursor:pointer;" (click)="filterRole='ADMIN'; loadStaff()">
+      <div class="stat-card-header"><div class="stat-icon blue"><i class="bi bi-shield-check"></i></div></div>
+      <div class="stat-value">{{ getCount('ADMIN') }}</div>
+      <div class="stat-label">Admins</div>
+    </div>
+    <div class="stat-card" style="cursor:pointer;" (click)="filterRole='DOCTOR'; loadStaff()">
+      <div class="stat-card-header"><div class="stat-icon green"><i class="bi bi-activity"></i></div></div>
+      <div class="stat-value">{{ getCount('DOCTOR') }}</div>
+      <div class="stat-label">Doctors</div>
+    </div>
+    <div class="stat-card" style="cursor:pointer;" (click)="filterRole='RECEPTIONIST'; loadStaff()">
+      <div class="stat-card-header"><div class="stat-icon amber"><i class="bi bi-headset"></i></div></div>
+      <div class="stat-value">{{ getCount('RECEPTIONIST') }}</div>
+      <div class="stat-label">Receptionists</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <div class="table-header">
+      <div class="table-title">Staff Members</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div class="search-bar-wrapper" style="max-width:240px;">
+          <span class="search-bar-icon"><i class="bi bi-search"></i></span>
+          <input
+            type="text"
+            class="search-bar-input"
+            [(ngModel)]="searchTerm"
+            placeholder="Search staff..."
+            (keyup.enter)="loadStaff()"
+          />
+        </div>
+        <select class="form-select-custom" style="width:150px;" [(ngModel)]="filterRole" (change)="loadStaff()">
+          <option value="">All Roles</option>
+          <option value="ADMIN">Admin</option>
+          <option value="DOCTOR">Doctor</option>
+          <option value="RECEPTIONIST">Receptionist</option>
+        </select>
+        <button class="btn-primary-custom btn-sm" (click)="loadStaff()">Search</button>
+      </div>
+    </div>
+
+    @if (loading) {
+      @for (i of [1,2,3,4,5]; track $index) {
+        <div class="skeleton-row-wrap">
+          <div class="skeleton skeleton-circle" style="width:32px;height:32px;"></div>
+          <div style="flex:3;"><div class="skeleton" style="height:14px;width:55%;"></div></div>
+          <div style="flex:3;"><div class="skeleton" style="height:13px;width:65%;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:22px;width:80px;border-radius:99px;"></div></div>
+          <div style="flex:2;"><div class="skeleton" style="height:13px;width:60%;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:22px;width:56px;border-radius:99px;"></div></div>
+          <div style="flex:1;"><div class="skeleton" style="height:30px;width:90px;border-radius:6px;"></div></div>
+        </div>
+      }
+    } @else if (error) {
+      <div style="padding:24px;"><div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ error }}</div></div>
+    } @else {
+      <div class="table-overflow">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (staff.length === 0) {
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state">
+                    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                    <div class="empty-state-title">No staff found</div>
+                    <div class="empty-state-sub">Add staff members to get started</div>
+                  </div>
+                </td>
+              </tr>
+            }
+            @for (s of staff; track s.id) {
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;">
+                      {{ s.name.charAt(0).toUpperCase() }}
+                    </div>
+                    <strong>{{ s.name }}</strong>
+                  </div>
+                </td>
+                <td style="color:var(--text-muted);font-size:13px;">{{ s.email }}</td>
+                <td><span class="badge-role {{ s.role }}">{{ s.role }}</span></td>
+                <td style="font-size:13px;">{{ s.departmentName || '—' }}</td>
+                <td>
+                  @if (s.isActive) {
+                    <span class="badge-active">Active</span>
+                  } @else {
+                    <span class="badge-inactive">Inactive</span>
+                  }
+                </td>
+                <td>
+                  @if (s.isActive) {
+                    @if (canDeactivate(s)) {
+                      <button class="btn-amber-custom btn-sm" (click)="deactivate(s.id)">Deactivate</button>
+                    } @else {
+                      <span
+                        title="Admin accounts can only be managed by Super Admin."
+                        style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);cursor:not-allowed;padding:4px 8px;border:1px solid var(--border);border-radius:6px;"
+                      >
+                        <i class="bi bi-lock-fill"></i> Protected
+                      </span>
+                    }
+                  } @else {
+                    <button class="btn-success-custom btn-sm" (click)="activate(s.id)">Activate</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add Staff Modal -->
+@if (showModal) {
+  <div class="modal-overlay" >
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><i class="bi bi-person"></i> Add Staff Member</div>
+        <button class="modal-close" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      @if (modalError) {
+        <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ modalError }}</div>
+      }
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-control-custom" [(ngModel)]="form.name" placeholder="Dr. Jane Smith" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control-custom" [(ngModel)]="form.phone" placeholder="+91..." />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input type="email" class="form-control-custom" [(ngModel)]="form.email" placeholder="staff@hospital.com" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input type="password" class="form-control-custom" [(ngModel)]="form.password" placeholder="••••••••" />
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ form.role === 'ADMIN' ? '1fr' : '1fr 1fr' }};gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Role *</label>
+          <select class="form-select-custom" [(ngModel)]="form.role" (ngModelChange)="onRoleChange()">
+            <option value="DOCTOR">Doctor</option>
+            <option value="RECEPTIONIST">Receptionist</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+        @if (form.role !== 'ADMIN') {
+          <div class="form-group">
+            <label class="form-label">Department *</label>
+            <select class="form-select-custom" [(ngModel)]="form.departmentId">
+              <option [value]="0">Select Department</option>
+              @for (dept of departments; track dept.id) {
+                <option [value]="dept.id">{{ dept.name }}</option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost-custom" (click)="closeModal()">Cancel</button>
+        <button class="btn-primary-custom" (click)="createStaff()" [disabled]="modalLoading">
+          @if (modalLoading) {
+            <span class="spinner" style="width:16px;height:16px;border-width:2px;"></span>
+            Adding...
+          } @else {
+            Add Staff Member
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

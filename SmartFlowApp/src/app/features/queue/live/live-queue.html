@@ -1,0 +1,69 @@
+<div class="live-queue-page">
+  <!-- Header -->
+  <div class="live-queue-header">
+    <div class="live-queue-logo">
+      <div class="live-queue-logo-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+      <div class="live-queue-logo-name">SmartFlow</div>
+    </div>
+
+    @if (departmentName) {
+      <div class="live-queue-dept-badge">{{ departmentName }}</div>
+    }
+
+    <div style="font-size:12px;color:rgba(224,242,254,0.4);display:flex;align-items:center;gap:6px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;animation:blink 1.5s infinite;"></span>
+      Live
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="live-pulse-loader">
+      <div class="live-pulse-ring">
+        <div class="live-pulse-ring-core"><i class="bi bi-heart-pulse"></i></div>
+      </div>
+      <div class="live-pulse-label">Loading queue...</div>
+    </div>
+  } @else {
+    <!-- Now Serving -->
+    <div class="live-now-serving">
+      <div class="live-now-label">Now Serving</div>
+
+      @if (nowServing) {
+        <div class="live-token-number">#{{ nowServing.tokenNumber }}</div>
+        <div class="live-serving-divider"></div>
+        <div class="live-patient-name">{{ nowServing.patientName || 'Patient' }}</div>
+        <div style="margin-top:8px;font-size:13px;color:rgba(237,233,254,0.4);">
+          Dr. {{ nowServing.doctorName }}
+        </div>
+      } @else {
+        <div style="font-size:64px;font-weight:900;color:rgba(124,58,237,0.3);line-height:1;letter-spacing:-2px;">
+          —
+        </div>
+        <div class="live-serving-divider"></div>
+        <div class="live-patient-name" style="color:rgba(237,233,254,0.4);">No patient being seen</div>
+      }
+    </div>
+
+    <!-- Waiting Queue -->
+    @if (waitingTokens.length > 0) {
+      <div class="live-queue-list-title">Waiting Queue ({{ waitingTokens.length }})</div>
+      <div class="live-queue-grid">
+        @for (token of waitingTokens; track token.id) {
+          <div class="live-token-card" [class.priority]="token.priority">
+            @if (token.priority) {
+              <div style="font-size:11px;font-weight:700;color:var(--danger-text);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                <i class="bi bi-exclamation-triangle-fill"></i> Emergency
+              </div>
+            }
+            <div class="live-token-card-number">#{{ token.tokenNumber }}</div>
+            <div class="live-token-card-name">{{ token.patientName || 'Patient' }}</div>
+          </div>
+        }
+      </div>
+    } @else if (!nowServing) {
+      <div style="text-align:center;color:rgba(237,233,254,0.3);font-size:16px;margin-top:40px;">
+        Queue is empty
+      </div>
+    }
+  }
+</div>

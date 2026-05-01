@@ -1,0 +1,79 @@
+<div class="auth-layout">
+  <!-- Left: Branding -->
+  <div class="auth-left">
+    <div class="auth-left-deco auth-left-deco-1"></div>
+    <div class="auth-left-deco auth-left-deco-2"></div>
+
+    <div class="auth-left-content">
+      <div class="auth-logo"><i class="bi bi-shield-check"></i></div>
+      <div class="auth-title">SmartFlow</div>
+      <div class="auth-tagline">Super Admin Control Panel</div>
+      <div class="auth-left-divider"></div>
+      <div class="auth-points">
+        <div class="auth-point"><i class="bi bi-check2-circle"></i><span>Manage hospitals &amp; staff</span></div>
+        <div class="auth-point"><i class="bi bi-check2-circle"></i><span>Platform-wide user control</span></div>
+        <div class="auth-point"><i class="bi bi-check2-circle"></i><span>Full access to all systems</span></div>
+      </div>
+    </div>
+
+    <div class="auth-left-footer">SmartFlow Health &nbsp;·&nbsp; Admin Portal</div>
+  </div>
+
+  <!-- Right: Form -->
+  <div class="auth-right">
+    <div class="auth-form">
+      <div class="auth-form-title">Super Admin Login</div>
+      <div class="auth-form-sub">Restricted access — authorized personnel only</div>
+
+      @if (errorMessage) {
+        <div class="alert-error"><i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}</div>
+      }
+
+      <form (ngSubmit)="submit()">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input
+            type="email"
+            class="form-control-custom"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="superadmin@smartflow.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control-custom"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary-custom"
+          style="width:100%; justify-content:center; padding:12px 20px; font-size:15px; margin-top:8px;"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner" style="width:18px;height:18px;border-width:2px;"></span>
+            Signing in...
+          } @else {
+            <i class="bi bi-shield-check"></i> Super Admin Sign In
+          }
+        </button>
+      </form>
+
+      <div class="auth-form-footer">
+        <div style="margin-top:12px;">
+          Not a super admin? <a routerLink="/login">Regular Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
