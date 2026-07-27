@@ -44,6 +44,9 @@ The system supports **5 user roles**:
 * Manages staff (max 2 admins per hospital)
 * Views registered patients
 <img width="1917" height="901" alt="image" src="https://github.com/user-attachments/assets/87900b42-98d4-4554-a481-0818abb0e4ba" />
+### 🔹 DOCTOR
+Assigned to departments
+Handles appointments booked by patients
 
 ### 🔹 RECEPTIONIST
 
