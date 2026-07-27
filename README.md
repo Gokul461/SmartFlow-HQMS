@@ -54,11 +54,6 @@ The system supports **5 user roles**:
   * `WAITING → IN_PROGRESS → COMPLETED / CANCELLED`
 * Marks emergency cases
 
-### 🔹 DOCTOR
-
-* Assigned to departments
-* Handles appointments booked by patients
-
 ### 🔹 PATIENT
 
 * Registers and logs in
